@@ -2,7 +2,8 @@ name: Deploy React App to GitHub Pages
 
 on:
   push:
-    branches: ["master"]
+    branches:
+      - master
   workflow_dispatch:
 
 permissions:
@@ -10,22 +11,27 @@ permissions:
   pages: write
   id-token: write
 
+concurrency:
+  group: "pages"
+  cancel-in-progress: false
+
 jobs:
   build:
     runs-on: ubuntu-latest
+
     steps:
       - name: Checkout code
-        uses: actions/checkout@v4
-      
-      - name: Setup Node.js
+        uses: actions/checkout@v3
+
+      - name: Set up Node.js
         uses: actions/setup-node@v3
         with:
-          node-version: 20.15.1
+          node-version: '20' # Asegúrate de que tu proyecto es compatible con Node.js 20
 
       - name: Install dependencies
-        run: npm ci
+        run: npm install
 
-      - name: Build Vite app
+      - name: Build the app
         run: npm run build
 
       - name: Deploy to GitHub Pages
@@ -33,4 +39,4 @@ jobs:
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           publish_dir: ./dist
-
+          publish_branch: gh-pages
